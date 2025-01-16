@@ -53,7 +53,7 @@ public class Room {
             "FROM Hospital.Room " +
             "JOIN Hospital.Admission ON Room.room_number = Admission.room_number "+
            "JOIN Hospital.Patient ON Admission.patient_id = Patient.patient_id "+
-            "WHERE Room.Status = 'Occupied';";
+            "WHERE Room.Status = 'Occupied' AND Admission.discharge_date IS NULL;";
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -88,7 +88,7 @@ public class Room {
         List<String> results = new ArrayList<String>();
         String query = "SELECT Room.room_number, Room.Status, Patient.name AS patient_name, Admission.admission_date "+
             "FROM Hospital.Room "+
-            "LEFT JOIN Hospital.Admission ON Room.room_number = Admission.room_number " +
+            "LEFT JOIN Hospital.Admission ON Room.room_number = Admission.room_number AND Admission.discharge_date IS NULL " +
             "LEFT JOIN Hospital.Patient ON Admission.patient_id = Patient.patient_id;";
         try  {
             PreparedStatement stmt = connection.prepareStatement(query);

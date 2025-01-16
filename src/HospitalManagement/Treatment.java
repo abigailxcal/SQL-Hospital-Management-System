@@ -30,6 +30,27 @@ public class Treatment{
 
         return treatments;
     }
+
+    public boolean createTreatment(String treatmentType, String description, String timeOrdered, int admissionId, int doctorId, int employeeId) {
+        String query = " INSERT INTO Hospital.Treatment (TreatmentType, description, time_ordered, admission_id, ordered_by, administered_by) VALUES (?, ?, ?, ?, ?); ";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, treatmentType);
+            stmt.setString(2, description);
+            stmt.setString(3, timeOrdered);
+            stmt.setInt(4, admissionId);
+            stmt.setInt(5, doctorId);
+            stmt.setInt(6,employeeId); //administered_by
+            int rowsInserted = stmt.executeUpdate();
+            return rowsInserted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false; // Return false if the operation failed
+    }
+
+
     public boolean updateTreatmentAdministration(int treatmentId, String adminTime) {
         String query = "UPDATE Hospital.Treatment SET time_administered = ? WHERE treatment_id = ?";
 

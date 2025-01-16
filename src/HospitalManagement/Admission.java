@@ -47,7 +47,7 @@ public class Admission {
     }
 
     // ensures changes are authorized by the primary doctor
-    public boolean isAuthorizedDoctor(int admissionId, int doctorId) {
+    public boolean isAuthorizedPrimaryDoctor(int admissionId, int doctorId) {
         String query = "SELECT primary_doctor_id FROM Hospital.Admission WHERE admission_id = ?";
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
@@ -57,6 +57,20 @@ public class Admission {
                 int primaryDoctorId = rs.getInt("primary_doctor_id");
                 return primaryDoctorId == doctorId;
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public boolean isAuthorizedAssignedDoctor(int admissionId, int doctorId) {
+        String query = "SELECT primary_doctor_id FROM Hospital.Admission WHERE admission_id = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setInt(1, admissionId);
+            stmt.setInt(2, doctorId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next(); //is an assigned doctor
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -99,25 +113,29 @@ public class Admission {
     }
 
 
-    public List<Integer> getAssignedDoctors(int admissionId) {
-        List<Integer> doctorIds = new ArrayList<Integer>();
-        String query = "SELECT doctor_id FROM Hospital.AssignedDoctors WHERE admission_id = ?";
+    public List<String> getAssignedDoctors(int admissionId) {
+        List<String> doctors = new ArrayList<String>();
+        String query = "SELECT AssignedDoctors.doctor_id, Employee.name AS doctor_name\n" +
+                "        FROM Hospital.AssignedDoctors\n" +
+                "        JOIN Hospital.Doctor ON AssignedDoctors.doctor_id = Doctor.doctor_id\n" +
+                "        JOIN Hospital.Employee ON Doctor.doctor_id = Employee.employee_id\n" +
+                "        WHERE AssignedDoctors.admission_id = ?;";
 
         try  {
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setInt(1, admissionId); // Set the admission ID
-
-
                 ResultSet rs = stmt.executeQuery();
-                while (rs.next()) {
-                    doctorIds.add(rs.getInt("doctor_id"));
-                }
+            while (rs.next()) {
+                int doctorId = rs.getInt("doctor_id");
+                String doctorName = rs.getString("doctor_name");
+                doctors.add("Doctor ID: " + doctorId + ", Name: " + doctorName);
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return doctorIds;
+        return doctors;
     }
 
     public List<String> getAdmissionInfo(int admissionId){

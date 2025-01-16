@@ -4,6 +4,41 @@ import java.util.List;
 
 public class Driver {
 
+    private static int promptAndVerifyID(
+            String promptMessage,
+            String errorMessage,
+            Scanner scanner,
+            final Verification verifier,
+            final String verifyMethod
+    ) {
+        int id;
+        while (true) {
+            System.out.print(promptMessage);
+            id = scanner.nextInt();
+            boolean isValid = false;
+
+            if ("verifyPatientID".equals(verifyMethod)) {
+                isValid = verifier.verifyPatientID(id);
+            } else if ("verifyDoctorID".equals(verifyMethod)) {
+                isValid = verifier.verifyDoctorID(id);
+            } else if ("verifyDiagnosisID".equals(verifyMethod)) {
+                isValid = verifier.verifyDiagnosisID(id);
+            } else if ("verifyAdminID".equals(verifyMethod)) {
+                isValid = verifier.verifyAdminID(id);
+            } else if ("verifyEmployeeID".equals(verifyMethod)) {
+                isValid = verifier.verifyEmployeeID(id);
+            } else if ("verifyTreatmentID".equals(verifyMethod)) {
+                isValid = verifier.verifyTreatmentID(id);
+            } else if ("verifyAdmissionID".equals(verifyMethod)) {
+            isValid = verifier.verifyAdmissionID(id);}
+            if (isValid) {
+                break;
+            }
+            System.out.println(errorMessage);
+        }
+        return id;
+    }
+
     private static void managePatients(Scanner scanner, Patient patient) {
         while (true) {
             System.out.println("\nPATIENTS MENU");
@@ -30,7 +65,6 @@ public class Driver {
                     int ssn = scanner.nextInt();
                     scanner.nextLine();
 
-
                     int patientId = patient.addPatient(name, dob, emergencyContact, insuranceInfo, ssn);
                     if (patientId != -1) {
                         System.out.println("Patient added successfully with ID: " + patientId);
@@ -56,7 +90,6 @@ public class Driver {
                     for (String item: allPatients) {
                         System.out.println(item);
                     }
-
                     break;
                 case 0:
                     return;
@@ -65,7 +98,7 @@ public class Driver {
             }
         }
     }
-    private static void manageAdmissions(Scanner scanner, Admission admission) {
+    private static void manageAdmissions(Scanner scanner, Admission admission, Verification verification) {
         while (true) {
             System.out.println("\nADMISSIONS MENU");
             System.out.println("[1] Create an admission");
@@ -74,6 +107,7 @@ public class Driver {
             System.out.println("[4] View patients discharged between specific dates");
             System.out.println("[5] View details about a specific admission");
             System.out.println("[6] View all currently admitted patients");
+            System.out.println("[7] View assigned doctors for a specific admission");
             System.out.println("[0] Return to main menu");
             Room room = new Room();
             System.out.print("Enter your choice: ");
@@ -85,21 +119,43 @@ public class Driver {
 
             switch (choice) {
                 case 1:
-
                     System.out.println("Creating an admission...");
-                    System.out.print("Enter patient ID: ");
-                    int patientId = scanner.nextInt();
-                    System.out.print("Enter primary doctor ID: ");
-                    int primaryDoctorId = scanner.nextInt();
+                    int patientId = promptAndVerifyID(
+                            "Enter patient ID: ",
+                            "Invalid patient ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyPatientID"
+                    );
 
-                    System.out.print("Enter diagnosis ID: ");
-                    int diagnosisId = scanner.nextInt();
+                    int primaryDoctorId = promptAndVerifyID(
+                            "Enter primary doctor ID: ",
+                            "Invalid doctor ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyDoctorID"
+                    );
+
+                    int diagnosisId = promptAndVerifyID(
+                            "Enter diagnosis ID: ",
+                            "Invalid diagnosis ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyDiagnosisID"
+                    );
+
+                    scanner.nextLine(); // Consume newline
                     System.out.print("Enter admission date (YYYY-MM-DD): ");
                     String admissionDate = scanner.nextLine();
 
-                    // authorization needed
-                    System.out.print("Enter admin ID to assign a room: ");
-                    adminId = scanner.nextInt();
+                    adminId = promptAndVerifyID(
+                            "Enter admin ID to assign a room: ",
+                            "Invalid admin ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyAdminID"
+                    );
+
                     System.out.print("Enter room number: ");
                     roomNumber = scanner.nextInt();
                     while (!room.isRoomAvailable(roomNumber)) {
@@ -109,18 +165,20 @@ public class Driver {
 
                     boolean admissionCreated = admission.createAdmission(patientId, primaryDoctorId, admissionDate, diagnosisId, roomNumber, adminId);
                     if (admissionCreated) {
-                        room.markRoomOccupied(roomNumber);
                         System.out.println("Admission created successfully.");
                     } else {
                         System.out.println("Failed to create admission.");
                     }
-
                     break;
                 case 2:
-
                     System.out.println("Discharging a patient...");
-                    System.out.print("Enter admission ID: ");
-                    int admissionId = scanner.nextInt();
+                    int admissionId = promptAndVerifyID(
+                            "Enter admission ID: ",
+                            "Invalid admission ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyAdmissionID"
+                    );
                     scanner.nextLine();
                     System.out.print("Enter discharge date (YYYY-MM-DD): ");
                     String dischargeDate = scanner.nextLine();
@@ -141,14 +199,25 @@ public class Driver {
                     break;
                 case 3:
                     System.out.println("Assigning a doctor to an admission...");
-                    System.out.println("Enter the ID number of the admission: ");
-                    admission_id = Integer.parseInt(scanner.nextLine());
-                    System.out.println("Enter the ID number of the patient: ");
-                    int patient_id = Integer.parseInt(scanner.nextLine());
+                    admission_id =  promptAndVerifyID(
+                        "Enter admission ID: ",
+                        "Invalid admission ID. Please try again.",
+                        scanner,
+                        verification,
+                        "verifyAdmissionID"
+                    );
+
+                    int patient_id = promptAndVerifyID(
+                            "Enter patient ID: ",
+                            "Invalid patient ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyPatientID"
+                    );
+                    scanner.nextLine();
                     System.out.println("AUTHORIZATION NEEDED - Enter the ID number of the primary doctor: ");
                     int authorized_id = Integer.parseInt(scanner.nextLine());
-                    scanner.nextLine();
-                    if (admission.isAuthorizedDoctor(admission_id,authorized_id)){
+                    if (admission.isAuthorizedPrimaryDoctor(admission_id,authorized_id)){
                         System.out.println("Authorization successful.");
                         System.out.println("Enter the ID number of the doctor you wish to assign: ");
                         int assignedDoc_id = Integer.parseInt(scanner.nextLine());
@@ -172,8 +241,13 @@ public class Driver {
                     break;
                 case 5:
                     System.out.println("Viewing details about a specific admission...");
-                    System.out.println("Enter the ID number of the admission: ");
-                    admission_id = Integer.parseInt(scanner.nextLine());
+                    admission_id = promptAndVerifyID(
+                            "Enter admission ID: ",
+                            "Invalid admission ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyAdmissionID"
+                    );
                     List<String> info = admission.getAdmissionInfo(admission_id);
                     for (String item: info){
                         System.out.println(item);
@@ -186,6 +260,20 @@ public class Driver {
                         System.out.println(item);
                     }
                     break;
+                case 7:
+                    System.out.println("Viewing all assigned doctors for patient...");
+                    admission_id = promptAndVerifyID(
+                            "Enter admission ID: ",
+                            "Invalid admission ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyAdmissionID"
+                    );
+                    List<String> allDoctors = admission.getAssignedDoctors(admission_id);
+                    for (String docId:allDoctors){
+                        System.out.println(docId);
+                    }
+
                 case 0:
                     return;
                 default:
@@ -329,11 +417,13 @@ public class Driver {
             }
         }
     }
-    private static void manageTreatments(Scanner scanner, Treatment treatment) {
+    private static void manageTreatments(Scanner scanner, Treatment treatment, Verification verification) {
+        Admission admission = new Admission();
         while (true) {
             System.out.println("\nTREATMENTS MENU");
             System.out.println("[1] View all treatments given to patients");
             System.out.println("[2] Update treatment administration");
+            System.out.println("[3] Order treatment for a patient");
             System.out.println("[0] Return to main menu");
 
             System.out.print("Enter your choice: ");
@@ -350,7 +440,14 @@ public class Driver {
                     break;
                 case 2:
                     System.out.println("Enter the treatment ID to update:");
-                    int treatmentId = scanner.nextInt();
+                    int treatmentId = promptAndVerifyID(
+                            "Enter treatment ID: ",
+                            "Invalid treatment ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyTreatmentID"
+                    );
+
                     scanner.nextLine();
                     System.out.println("Enter the new administration time (YYYY-MM-DD HH:MM:SS):");
                     String adminTime = scanner.nextLine();
@@ -361,7 +458,52 @@ public class Driver {
                         System.out.println("Failed to update treatment administration.");
                     }
                     break;
-                case 0:
+
+                case 3:
+                    System.out.println("Ordering treatment for patient...");
+                    System.out.println("Enter the ID number of the admission: ");
+                    int admission_id = promptAndVerifyID(
+                            "Enter admission ID: ",
+                            "Invalid admission ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyAdmissionID"
+                    );
+
+                    System.out.println(("AUTHORIZATION NEEDED - only assigned doctors of this patient may order treatments. "));
+                    System.out.println("Enter doctor ID: ");
+                    int authorized_id = Integer.parseInt(scanner.nextLine());
+                    if (!admission.isAuthorizedAssignedDoctor(admission_id,authorized_id)){
+                        System.out.println("You are not authorized to order treatment for this patient");
+                        break;
+                    }
+                    System.out.println("Authorization successful. Proceeding with treatment order.");
+                    System.out.print("Enter the treatment type (Procedure or Medication): ");
+                    String treatmentType = scanner.nextLine();
+
+                    System.out.print("Enter the treatment description: ");
+                    String description = scanner.nextLine();
+
+                    System.out.print("Enter the treatment order time (YYYY-MM-DD HH:MM:SS): ");
+                    String timeOrdered = scanner.nextLine();
+                    System.out.print("Enter the ID number of who administered the treatment: ");
+                    int employee_id = promptAndVerifyID(
+                            "Enter employee ID: ",
+                            "Invalid employee ID. Please try again.",
+                            scanner,
+                            verification,
+                            "verifyEmployeeID"
+                    );
+
+                    boolean treatmentCreated = treatment.createTreatment(treatmentType, description, timeOrdered, admission_id, authorized_id,employee_id);
+                    if (treatmentCreated) {
+                        System.out.println("Treatment ordered successfully.");
+                    } else {
+                        System.out.println("Failed to order treatment.");
+                    }
+                    break;
+
+                    case 0:
                     return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -430,6 +572,7 @@ public class Driver {
         Room room = new Room();
         Doctor doctor = new Doctor();
         Employee emp = new Employee();
+        Verification verification = new Verification();
 
         boolean programRunning = true;
 
@@ -452,7 +595,7 @@ public class Driver {
                     managePatients(scanner, patient);
                     break;
                 case 2:
-                    manageAdmissions(scanner, admission);
+                    manageAdmissions(scanner, admission, verification);
                     break;
                 case 3:
                     manageRooms(scanner, room);
@@ -464,7 +607,7 @@ public class Driver {
                     manageDoctors(scanner, doctor);
                     break;
                 case 6:
-                    manageTreatments(scanner, treatment);
+                    manageTreatments(scanner, treatment, verification);
                     break;
                 case 7:
                     manageEmployees(scanner, emp);

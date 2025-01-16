@@ -7,6 +7,7 @@ import java.util.List;
 public class Patient {
     private final Connection connection;
 
+
     public Patient(){
         this.connection = DB_Connection.getConnection();
     }
@@ -32,6 +33,8 @@ public class Patient {
         }
         return patients;
     }
+
+
 
 
     public boolean patientExists(int ssn) {
