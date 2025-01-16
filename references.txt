@@ -1,0 +1,70 @@
+SELECT * FROM Hospital.Employee;
+
+"Check if room is available" ,
+"Update room status"         ,
+"View all occupied rooms"    ,
+"View all available rooms"   ,
+"View all rooms"             ,
+"Create a diagnosis" ,
+"View all diagnosis given to patients",
+
+"View all doctors",
+"View primary doctors with high admissions" ,
+
+"Order treatment"    ,
+"View all treatments given to patients" ,
+"Update treatment administration" ,
+
+"Add employee" ,
+"List all employees"  ,
+public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Admission admission = new Admission();
+        Treatment treatment = new Treatment();
+        Patient patient = new Patient();
+        Diagnosis diagnosis = new Diagnosis();
+        Room room = new Room();
+        Doctor doctor = new Doctor();
+        Employee emp = new Employee();
+        boolean programRunning = True;
+
+        while (programRunning){
+            System.out.println("Welcome to the hospital management system. What would you like to do?");
+            System.out.println(" PATIENTS");
+            System.out.println(("    [1] Add a patient "));
+            System.out.println(("    [2] Check if a patient is already in the system "));
+            System.out.println(("    [3] View all patients in system "));
+            System.out.println(" ADMISSIONS:");
+            System.out.println(("    [4] Create an admission "));
+            System.out.println(("    [5] Discharge a patient "));
+            System.out.println(("    [6] Assign a doctor to an admission "));
+            System.out.println(("    [7] View all patients discharged between a specific interval "));
+            System.out.println(("    [8] View details about a specific admission "));
+            System.out.println(("    [9] View all patients currently admitted "));
+            System.out.println(" ROOMS:");
+            System.out.println(("    [10] Check if room is available"));
+            System.out.println(("    [11] Update room status"));
+            System.out.println(("    [12] View all occupied rooms"));
+            System.out.println(("    [13] View all available rooms"));
+            System.out.println(("    [14] View all rooms"));
+            System.out.println(" DIAGNOSIS:");
+            System.out.println(("    [15] Create a diagnosis"));
+            System.out.println(("    [16] View all diagnosis given to patients"));
+            System.out.println(" DOCTORS:");
+            System.out.println(("    [17] View all doctors"));
+            System.out.println(("    [18] View primary doctors with high admissionsOrder treatment"));
+            System.out.println(" TREATMENTS:");
+            System.out.println(("    [19] View all treatments given to patients"));
+            System.out.println(("    [20] Update treatment administration"));
+            System.out.println(" EMPLOYEES:");
+            System.out.println(("    [21] Add employee"));
+            System.out.println(("    [22] List all employees"));
+            int category_choice = scanner.nextInt();
+            scanner.nextLine();
+            switch (choice) {
+                case 1: // patients
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }

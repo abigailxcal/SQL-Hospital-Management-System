@@ -1,0 +1,178 @@
+CREATE TABLE Hospital.Employee (
+    employee_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(45) NOT NULL,
+    DOB DATE NOT NULL,
+    start_date DATE NOT NULL
+
+);
+
+CREATE TABLE Hospital.Doctor (
+    doctor_id INT PRIMARY KEY,
+    Specialty VARCHAR(100),
+    FOREIGN KEY (doctor_id) REFERENCES Employee(employee_id)
+);
+
+CREATE TABLE Hospital.Nurse (
+    nurse_id INT PRIMARY KEY,
+    certification VARCHAR(100),
+    FOREIGN KEY (nurse_id) REFERENCES Employee(employee_id)
+);
+
+CREATE TABLE Hospital.Technician (
+    technician_id INT PRIMARY KEY,
+    skill VARCHAR(100),
+    FOREIGN KEY (technician_id) REFERENCES Employee(employee_id)
+);
+
+CREATE TABLE Hospital.Administrator (
+    admin_id INT PRIMARY KEY,
+    FOREIGN KEY (admin_id) REFERENCES Employee(employee_id)
+);
+
+
+CREATE TABLE Hospital.Patient (
+    patient_id INT PRIMARY KEY,
+    name VARCHAR(45) NOT NULL,
+    DOB DATE NOT NULL,
+    emergency_contact VARCHAR(100) NOT NULL,
+    insurance_policy VARCHAR(100) NOT NULL,
+    SSN int NOT NULL UNIQUE,
+);
+
+
+CREATE TABLE Hospital.Room (
+    room_number INT PRIMARY KEY CHECK (room_number BETWEEN 1 AND 20),
+    Status ENUM('Available', 'Occupied') DEFAULT 'Available',
+    admin_id INT NOT NULL,
+    FOREIGN KEY (admin_id) REFERENCES Administrator(admin_id)
+);
+
+
+CREATE TABLE Hospital.Admission (
+    admission_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    primary_doctor_id INT NOT NULL,
+    admission_date DATE NOT NULL,
+    initial_diagnosis INT NOT NULL,
+    room_number INT NOT NULL,
+	discharge_date DATE,
+    admin_id INT NOT NULL,
+    FOREIGN KEY (room_number) REFERENCES Room(room_number),
+    FOREIGN KEY (patient_id) REFERENCES Patient(patient_id),
+    FOREIGN KEY (primary_doctor_id) REFERENCES Doctor(doctor_id),
+    FOREIGN KEY (admin_id) REFERENCES Administrator(admin_id),
+    FOREIGN KEY (initial_diagnosis) REFERENCES Diagnosis(diagnosis_id)
+);
+
+CREATE TABLE Hospital.Diagnosis (
+	diagnosis_id INT AUTO_INCREMENT PRIMARY KEY,
+	diagnosis_name TEXT NOT NULL
+);
+
+CREATE TABLE Hospital.AssignedDoctors (
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    admission_id INT NOT NULL,
+    isPrimary BOOLEAN NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES Patient(patient_id),
+    FOREIGN KEY (doctor_id) REFERENCES Doctor(doctor_id),
+    FOREIGN KEY (admission_id) REFERENCES Admission(admission_id),
+    PRIMARY KEY (patient_id,doctor_id, admission_id)
+);
+
+
+CREATE TABLE Hospital.Treatment (
+    treatment_id INT AUTO_INCREMENT PRIMARY KEY,
+    TreatmentType ENUM('Procedure', 'Medication') NOT NULL,
+    description TEXT NOT NULL,
+    time_ordered DATETIME NOT NULL,
+    time_administered DATETIME NOT NULL,
+    administered_by INT,
+    admission_id INT NOT NULL,
+    ordered_by INT NOT NULL,
+    FOREIGN KEY (admission_id) REFERENCES Admission(admission_id),
+    FOREIGN KEY (ordered_by) REFERENCES Doctor(doctor_id),
+    FOREIGN KEY (administered_by) REFERENCES Employee(employee_id)
+);
+
+
+
+INSERT INTO Hospital.Employee (employee_id, name, DOB, start_date)
+VALUES
+(1, 'Dr. Alex Johns', '1985-05-12', '2005-06-01'),
+(2, 'Dr. Brian Li', '1972-03-22', '2010-06-12'),
+(3, 'Nurse Becky Jones', '1985-06-27', '2014-04-20'),
+(4, 'Tech Miles Green', '1992-08-07', '2018-11-03'),
+(5, 'Admin Marsha Smith', '1990-02-18', '2008-03-11');
+
+INSERT INTO Hospital.Doctor (doctor_id, Specialty)
+VALUES
+(1, 'Cardiology'),
+(2, 'Orthopedics');
+SELECT * FROM Hospital.Doctor;
+
+INSERT INTO Hospital.Nurse (nurse_id, certification)
+VALUES
+(3, 'Critical Care');
+SELECT * FROM Hospital.Nurse;
+
+INSERT INTO Hospital.Technician (technician_id, skill)
+VALUES
+(4, 'Radiology');
+
+INSERT INTO Hospital.Administrator (admin_id)
+VALUES
+(5);
+
+INSERT INTO Hospital.Room (room_number, Status, admin_id)
+VALUES
+(1, 'Occupied', 5),
+(2, 'Available', 5),
+(3, 'Available', 5),
+(4, 'Available', 5),
+(5, 'Available', 5),
+(6, 'Available', 5),
+(7, 'Available', 5),
+(8, 'Available', 5),
+(9, 'Available', 5),
+(10, 'Available', 5),
+(11, 'Available', 5),
+(12, 'Available', 5),
+(13, 'Available', 5),
+(14, 'Available', 5),
+(15, 'Available', 5),
+(16, 'Available', 5),
+(17, 'Available', 5),
+(18, 'Available', 5),
+(19, 'Available', 5),
+(20, 'Available', 5);
+
+INSERT INTO Hospital.Diagnosis (diagnosis_id, diagnosis_name)
+VALUES
+(1, 'Pneumonia'),
+(2, 'Fracture');
+
+INSERT INTO Hospital.Admission (admission_id, patient_id, primary_doctor_id, admission_date, initial_diagnosis, room_number, discharge_date, admin_id)
+VALUES
+(4, 3, 2, '2023-01-10', 1, 1, '2023-01-11', 5),
+(5, 3, 2, '2024-05-11', 2, 9, '2024-05-20', 5),
+(6, 3, 2, '2025-01-15', 2, 10, NULL, 5),
+(7, 2, 1, '2023-09-25', 2, 19, '2023-09-26', 5);
+SELECT * FROM Hospital.Admission;
+
+INSERT INTO Hospital.Patient (name, DOB, emergency_contact, insurance_policy, SSN) VALUES
+('George Cyrus', '1992-02-25', 'Anne Cyrus - 1234567790', 'Aetna PPO','34342'),
+('Violet Lazuli', '1999-04-4', 'Bob Qua - 9987554321', 'Anthem PPO','34442');
+SELECT * FROM Hospital.Patient;
+
+INSERT INTO Hospital.AssignedDoctors (patient_id, doctor_id, admission_id, isPrimary)
+VALUES
+(1, 1, 1, TRUE),
+(1, 2, 1, FALSE),
+(2, 2, 2, TRUE);
+
+INSERT INTO Hospital.Treatment (treatment_id, TreatmentType, description, time_ordered, time_administered, administed_by, admission_id, ordered_by)
+VALUES
+(1, 'Medication', 'Antibiotics for pneumonia', '2025-01-10 14:30:00', '2025-01-10 15:00:00', 3, 1, 1), -- Administered by Nurse Jane White
+(2, 'Procedure', 'Surgery for fracture', '2025-01-11 10:00:00', '2025-01-11 11:30:00', 4, 2, 2); -- Administered by Tech Mike Green
+
