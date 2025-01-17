@@ -41,6 +41,7 @@ public class Driver {
 
     private static void managePatients(Scanner scanner, Patient patient) {
         while (true) {
+
             System.out.println("\nPATIENTS MENU");
             System.out.println("[1] Add a patient");
             System.out.println("[2] Check if a patient is already in the system");
@@ -71,6 +72,7 @@ public class Driver {
                     } else {
                         System.out.println("Failed to add patient.");
                     }
+                    break;
 
                 case 2:
                     System.out.println("Checking if patient exists...");
@@ -195,7 +197,8 @@ public class Driver {
                     if (!admission.isAuthorizedAdmin(adminId)){
                         System.out.println("You are not authorized to perform this action.");
                     }
-                    admission.dischargePatient(admissionId, dischargeDate, roomNumber);
+                    admission.dischargePatient(admissionId, dischargeDate);
+                    room.markRoomAvailable(roomNumber);
                     break;
                 case 3:
                     System.out.println("Assigning a doctor to an admission...");
@@ -217,14 +220,15 @@ public class Driver {
                     scanner.nextLine();
                     System.out.println("AUTHORIZATION NEEDED - Enter the ID number of the primary doctor: ");
                     int authorized_id = Integer.parseInt(scanner.nextLine());
-                    if (admission.isAuthorizedPrimaryDoctor(admission_id,authorized_id)){
-                        System.out.println("Authorization successful.");
-                        System.out.println("Enter the ID number of the doctor you wish to assign: ");
-                        int assignedDoc_id = Integer.parseInt(scanner.nextLine());
-                        admission.assignDoctor(patient_id,assignedDoc_id,admission_id,false);
-                    }
-                    else {
+                    if (!admission.isAuthorizedPrimaryDoctor(admission_id,authorized_id)){
                         System.out.println("You are not authorized to assign doctors to this admission.");
+                    }
+                    System.out.println("Authorization successful.");
+                    System.out.println("Enter the ID number of the doctor you wish to assign: ");
+                    int assignedDoc_id = Integer.parseInt(scanner.nextLine());
+                    boolean assigningDoctor = admission.assignDoctor(patient_id,assignedDoc_id,admission_id,false);
+                    if (assigningDoctor){
+                        System.out.println("Successfully assigned doctor to patient.");
                     }
                     break;
                 case 4:
@@ -560,7 +564,80 @@ public class Driver {
         }
     }
 
+    public static void projectRequirements(Scanner scanner,Room room, Patient patient, Diagnosis diagnosis, Treatment treatment, Employee employee, Admission admission, Doctor doctor){
 
+        System.out.println("1. ***** Room Utilization *****");
+        System.out.print("1.1 ");
+        System.out.println("Viewing all occupied rooms...");
+        List<String> results = room.listOccupiedRooms();
+        for (String result: results){
+            System.out.println(result);
+        }
+        System.out.print("1.2 ");
+        System.out.println("Viewing all available rooms...");
+        List<Integer> rooms = room.listUnoccupiedRooms();
+        for (Integer result: rooms){
+            System.out.println(result);
+        }
+        System.out.print("1.3 ");
+        System.out.println("Viewing all rooms...");
+        results = room.listAllRooms();
+        for (String result: results){
+            System.out.println(result);
+        }
+        System.out.println("\n2. ***** Patient Info *****");
+        System.out.print("2.1 ");
+        System.out.println("Viewing all patients...");
+        List<String> allPatients = patient.getAllPatients();
+        for (String item: allPatients) {
+            System.out.println(item);
+        }
+        System.out.print("2.2 ");
+        System.out.println("Viewing all currently admitted patients...");
+        allPatients = admission.getAllCurrentlyAdmittedPatients();
+        for (String item: allPatients) {
+            System.out.println(item);
+        }
+
+        System.out.print("2.3 ");
+        System.out.println("Viewing patients discharged in a specific date range...");
+        System.out.print("Enter start date YYYY-MM-DD: ");
+        String startDate = scanner.nextLine();
+        System.out.print("Enter end date YYYY-MM-DD: ");
+        String endDate = scanner.nextLine();
+        List<String> dischargedPatients = admission.getPatientsDischargedInDateRange(startDate,endDate);
+        for (String item: dischargedPatients) {
+            System.out.println(item);
+        }
+        System.out.println("\n3. ***** Diagnosis and Treatment Info *****");
+        System.out.print("3.1 ");
+        System.out.println("Viewing all diagnoses given to patients:");
+        List<String> diagnoses = diagnosis.getDiagnosisDescending();
+        for (String item: diagnoses) {
+            System.out.println(item);
+        }
+        System.out.print("3.2 ");
+        System.out.println("Viewing all treatments given to patients:");
+        List<String> treatments = treatment.getAllTreatments();
+        for (String item: treatments) {
+            System.out.println(item);
+        }
+
+        System.out.println("\n ***** 4. Employee Info *****");
+        System.out.print("4.1 ");
+        System.out.println("Viewing all employees:");
+        List<String> allEmployees = employee.getAllWorkers();
+        for (String item: allEmployees) {
+            System.out.println(item);
+        }
+        System.out.print("4.2 ");
+        System.out.println("Viewing primary doctors with high admissions:");
+        Doctor assignedDoctors = new Doctor();
+        List<String> highAdmissions = assignedDoctors.getPrimaryDoctorsWithHighAdmissions();
+        for (String item: highAdmissions) {
+            System.out.println(item);
+        }
+    }
 
 
     public static void main(String[] args) {
@@ -577,7 +654,13 @@ public class Driver {
         boolean programRunning = true;
 
         while (programRunning) {
-            System.out.println("\nWelcome to the hospital management system. What would you like to do?");
+            //clearScreen();
+
+
+            System.out.println("=========================================");
+            System.out.println("   Welcome to the Hospital Management System");
+            System.out.println("   What would you like to do?");
+            System.out.println("=========================================");
             System.out.println("[1] Manage Patients");
             System.out.println("[2] Manage Admissions");
             System.out.println("[3] Manage Rooms");
@@ -585,8 +668,9 @@ public class Driver {
             System.out.println("[5] Manage Doctors");
             System.out.println("[6] Manage Treatments");
             System.out.println("[7] Manage Employees");
+            System.out.println("[8] *** Execute Project Query Requirements ***");
             System.out.println("[0] Exit");
-
+            System.out.println("=========================================");
             System.out.print("Enter your choice: ");
             int categoryChoice = scanner.nextInt();
             scanner.nextLine();
@@ -612,8 +696,12 @@ public class Driver {
                 case 7:
                     manageEmployees(scanner, emp);
                     break;
+                case 8:
+                    projectRequirements(scanner,room,patient,diagnosis,treatment,emp,admission,doctor);
+
+                    break;
                 case 0:
-                    System.out.println("Exiting the system. Goodbye!");
+                    System.out.println("Exiting the system.");
                     programRunning = false;
                     break;
                 default:

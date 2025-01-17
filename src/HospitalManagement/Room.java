@@ -1,10 +1,14 @@
 package HospitalManagement;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Room {
-    private Connection connection;
+    private final Connection connection;
 
     public Room(){
         this.connection = DB_Connection.getConnection();
@@ -49,11 +53,13 @@ public class Room {
 
     public List<String> listOccupiedRooms() {
         List<String> results = new ArrayList<String>();
+
         String query = " SELECT Room.room_number, Patient.name AS patient_name, Admission.admission_date "+
             "FROM Hospital.Room " +
             "JOIN Hospital.Admission ON Room.room_number = Admission.room_number "+
            "JOIN Hospital.Patient ON Admission.patient_id = Patient.patient_id "+
             "WHERE Room.Status = 'Occupied' AND Admission.discharge_date IS NULL;";
+
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -72,6 +78,7 @@ public class Room {
     public List<Integer> listUnoccupiedRooms() {
         List<Integer> rooms = new ArrayList<Integer>();
         String query = "SELECT room_number FROM Hospital.Room WHERE Status = 'Available'";
+
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
@@ -90,6 +97,7 @@ public class Room {
             "FROM Hospital.Room "+
             "LEFT JOIN Hospital.Admission ON Room.room_number = Admission.room_number AND Admission.discharge_date IS NULL " +
             "LEFT JOIN Hospital.Patient ON Admission.patient_id = Patient.patient_id;";
+
         try  {
             PreparedStatement stmt = connection.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();

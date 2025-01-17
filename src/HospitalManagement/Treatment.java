@@ -1,10 +1,13 @@
 package HospitalManagement;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Treatment{
-    private Connection connection;
+    private final Connection connection;
 
     public Treatment(){
         this.connection = DB_Connection.getConnection();
@@ -15,6 +18,7 @@ public class Treatment{
             "FROM Hospital.Treatment GROUP BY treatment_id, description ORDER BY total_occurrences DESC;";
 
         try {
+
             PreparedStatement stmt = connection.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
@@ -40,14 +44,14 @@ public class Treatment{
             stmt.setString(3, timeOrdered);
             stmt.setInt(4, admissionId);
             stmt.setInt(5, doctorId);
-            stmt.setInt(6,employeeId); //administered_by
+            stmt.setInt(6,employeeId); //administered by
             int rowsInserted = stmt.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return false; // Return false if the operation failed
+        return false;
     }
 
 

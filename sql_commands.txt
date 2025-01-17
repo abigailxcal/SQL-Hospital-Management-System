@@ -171,8 +171,148 @@ VALUES
 (1, 2, 1, FALSE),
 (2, 2, 2, TRUE);
 
-INSERT INTO Hospital.Treatment (treatment_id, TreatmentType, description, time_ordered, time_administered, administed_by, admission_id, ordered_by)
+INSERT INTO Hospital.Treatment (treatment_id, TreatmentType, description, time_ordered,  administed_by, admission_id, ordered_by)
 VALUES
-(1, 'Medication', 'Antibiotics for pneumonia', '2025-01-10 14:30:00', '2025-01-10 15:00:00', 3, 1, 1), -- Administered by Nurse Jane White
-(2, 'Procedure', 'Surgery for fracture', '2025-01-11 10:00:00', '2025-01-11 11:30:00', 4, 2, 2); -- Administered by Tech Mike Green
+(1, 'Medication', 'Antibiotics for pneumonia', '2025-01-10 14:30:00', 3, 1, 1),
+(2, 'Procedure', 'Surgery for fracture', '2025-01-11 10:00:00', 4, 2, 2);
 
+
+
+
+1.1: SELECT
+    Room.room_number,
+    Patient.name AS patient_name,
+    Admission.admission_date
+FROM
+    Hospital.Room
+JOIN
+    Hospital.Admission
+    ON Room.room_number = Admission.room_number
+JOIN
+    Hospital.Patient
+    ON Admission.patient_id = Patient.patient_id
+WHERE
+    Room.Status = 'Occupied'
+    AND Admission.discharge_date IS NULL;
+
+
+1.2 SELECT
+    room_number
+FROM
+    Hospital.Room
+WHERE
+    Status = 'Available';
+
+
+1.3 SELECT
+    Room.room_number,
+    Room.Status,
+    Patient.name AS patient_name,
+    Admission.admission_date
+FROM
+    Hospital.Room
+LEFT JOIN
+    Hospital.Admission
+    ON Room.room_number = Admission.room_number
+    AND Admission.discharge_date IS NULL
+LEFT JOIN
+    Hospital.Patient
+    ON Admission.patient_id = Patient.patient_id;
+
+
+2.1 SELECT
+    *
+FROM
+    Hospital.Patient;
+
+
+2.2 SELECT DISTINCT
+    Patient.patient_id,
+    Patient.name
+FROM
+    Hospital.Patient
+JOIN
+    Hospital.Admission
+    ON Patient.patient_id = Admission.patient_id
+WHERE
+    Admission.discharge_date IS NULL;
+
+
+2.3 SELECT DISTINCT
+    Patient.patient_id,
+    Patient.name
+FROM
+    Hospital.Patient
+JOIN
+    Hospital.Admission
+    ON Patient.patient_id = Admission.patient_id
+WHERE
+    Admission.discharge_date BETWEEN ? AND ?;
+
+
+3.1 SELECT
+    Diagnosis.diagnosis_id,
+    Diagnosis.diagnosis_name,
+    COUNT(Admission.initial_diagnosis) AS total_occurrences
+FROM
+    Hospital.Diagnosis
+JOIN
+    Hospital.Admission
+    ON Diagnosis.diagnosis_id = Admission.initial_diagnosis
+GROUP BY
+    Diagnosis.diagnosis_id,
+    Diagnosis.diagnosis_name
+ORDER BY
+    total_occurrences DESC;
+
+
+3.2 SELECT
+    treatment_id,
+    description AS treatment_name,
+    COUNT(treatment_id) AS total_occurrences
+FROM
+    Hospital.Treatment
+GROUP BY
+    treatment_id,
+    description
+ORDER BY
+    total_occurrences DESC;
+
+
+4.1 SELECT
+    Employee.name,
+    Employee.employee_id,
+    CASE
+        WHEN EXISTS (SELECT 1 FROM Hospital.Doctor WHERE Doctor.doctor_id = Employee.employee_id) THEN 'Doctor'
+        WHEN EXISTS (SELECT 1 FROM Hospital.Nurse WHERE Nurse.nurse_id = Employee.employee_id) THEN 'Nurse'
+        WHEN EXISTS (SELECT 1 FROM Hospital.Technician WHERE Technician.technician_id = Employee.employee_id) THEN 'Technician'
+        WHEN EXISTS (SELECT 1 FROM Hospital.Administrator WHERE Administrator.admin_id = Employee.employee_id) THEN 'Administrator'
+        ELSE 'Unknown'
+    END AS job_category
+FROM
+    Hospital.Employee
+ORDER BY
+    Employee.name ASC;
+
+
+4.2 SELECT
+    Doctor.doctor_id,
+    Employee.name,
+    COUNT(Admission.admission_id) AS admission_count
+FROM
+    Hospital.Admission
+JOIN
+    Hospital.Doctor
+    ON Admission.primary_doctor_id = Doctor.doctor_id
+JOIN
+    Hospital.Employee
+    ON Doctor.doctor_id = Employee.employee_id
+WHERE
+    Admission.admission_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+GROUP BY
+    Doctor.doctor_id,
+    Employee.name
+HAVING
+    admission_count >= 4
+ORDER BY
+    admission_count DESC;

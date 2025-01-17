@@ -1,5 +1,9 @@
 package HospitalManagement;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +46,7 @@ public class Diagnosis {
         "JOIN Hospital.Admission ON Diagnosis.diagnosis_id = Admission.initial_diagnosis " +
         "GROUP BY Diagnosis.diagnosis_id, Diagnosis.diagnosis_name " +
         "ORDER BY total_occurrences "+ order+ ";";
+
 
         try {
             PreparedStatement stmt = connection.prepareStatement(query);

@@ -1,10 +1,14 @@
 package HospitalManagement;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Admission {
-    private Connection connection;
+    private final Connection connection;
 
     public Admission() {
         this.connection = DB_Connection.getConnection();
@@ -29,16 +33,15 @@ public class Admission {
         return false;
     }
 
-    public void dischargePatient(int admissionId, String dischargeDate, int roomNumber) {
+    public void dischargePatient(int admissionId, String dischargeDate) {
         String updateAdmission = "UPDATE Hospital.Admission SET discharge_date = ? WHERE admission_id = ?";
         try  {
             PreparedStatement stmt = connection.prepareStatement(updateAdmission);
             stmt.setString(1, dischargeDate);
             stmt.setInt(2, admissionId);
             stmt.executeUpdate();
-            // mark the room as available
-            Room room = new Room();
-            room.markRoomAvailable(roomNumber);
+
+
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Patient could not be discharged.");
@@ -122,6 +125,7 @@ public class Admission {
                 "        WHERE AssignedDoctors.admission_id = ?;";
 
         try  {
+
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setInt(1, admissionId); // Set the admission ID
                 ResultSet rs = stmt.executeQuery();
@@ -174,6 +178,7 @@ public class Admission {
                 "JOIN Hospital.Admission ON Patient.patient_id = Admission.patient_id " +
                 "WHERE Admission.discharge_date IS NULL;";
         try  {
+
             Statement stmt = this.connection.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
@@ -198,6 +203,7 @@ public class Admission {
                 "JOIN Hospital.Admission ON Patient.patient_id = Admission.patient_id " +
                 "WHERE Admission.discharge_date BETWEEN ? AND ?;";
         try {
+
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, startDate);
             stmt.setString(2, endDate);

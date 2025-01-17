@@ -1,5 +1,9 @@
 package HospitalManagement;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +36,7 @@ public class Doctor{
         List<String> results = new ArrayList<String>();
         String query = "SELECT Doctor.doctor_id, Employee.name, COUNT(Admission.admission_id) AS admission_count FROM Hospital.Admission JOIN Hospital.Doctor ON Admission.primary_doctor_id = Doctor.doctor_id JOIN Hospital.Employee ON Doctor.doctor_id = Employee.employee_id WHERE Admission.admission_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) GROUP BY Doctor.doctor_id, Employee.name HAVING admission_count >= 4 ORDER BY admission_count DESC;";
         try  {
+
             PreparedStatement stmt = connection.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 

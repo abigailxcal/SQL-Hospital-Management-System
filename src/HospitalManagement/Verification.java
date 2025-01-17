@@ -1,5 +1,9 @@
 package HospitalManagement;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Connection;
+
 
 public class Verification {
     private final Connection connection;

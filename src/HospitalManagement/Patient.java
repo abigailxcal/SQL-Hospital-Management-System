@@ -1,12 +1,15 @@
 package HospitalManagement;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Patient {
     private final Connection connection;
-
 
     public Patient(){
         this.connection = DB_Connection.getConnection();
@@ -34,9 +37,6 @@ public class Patient {
         return patients;
     }
 
-
-
-
     public boolean patientExists(int ssn) {
         String query = "SELECT patient_id FROM Hospital.Patient WHERE SSN = ?";
         try  {
@@ -56,12 +56,10 @@ public class Patient {
             stmt.setInt(1, ssn);
             ResultSet rs = stmt.executeQuery();
             return rs.getInt("patient_id");
-
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;
         }
-
     }
 
     public int addPatient(String name, String dob, String emergencyContact, String insurancePolicy, int ssn) {
